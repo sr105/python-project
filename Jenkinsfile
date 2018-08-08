@@ -8,7 +8,7 @@ pipeline {
         }
         stage('test') {
             steps {
-                sh 'false'
+                sh 'true'
             }
         }
         stage('deploy') {
