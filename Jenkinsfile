@@ -17,6 +17,7 @@ pipeline {
         stage('test') {
             steps {
                 sh 'pwd'
+                sh 'find . -type d'
                 sh 'pytest --junit-xml=/app/python-project.xml /app'
             }
         }
