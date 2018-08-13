@@ -29,7 +29,8 @@ pipeline {
     }
     post {
         always {
-            junit '/app/*.xml'
+            sh 'ls -l /app'
+            junit '/app/python-project.xml'
         }
     }
 }
