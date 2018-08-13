@@ -1,40 +1,33 @@
-pipeline {
-    agent {
-        // Equivalent to "docker build -f Dockerfile.build --build-arg version=1.0.2 ./build/
-        dockerfile {
-            filename 'Dockerfile'
-            dir '.'
-            // label 'my-defined-label'
-            // additionalBuildArgs  '--build-arg version=1.0.2'
-        }
+node {
+
+    def customImage
+
+    stage('Checkout Latest Source') {
+        def scmVars = checkout scm
+        // env.GIT_COMMIT = scmVars.GIT_COMMIT
+        // env.GIT_BRANCH = scmVars.GIT_BRANCH
     }
-    stages {
-        stage('build') {
-            steps {
-                sh 'python --version'
-            }
-        }
-        stage('test') {
-            steps {
-                sh 'pwd'
-                sh 'find . -type d'
-                sh 'pytest --junit-xml=/app/python-project.xml /app'
-            }
-        }
-        stage('deploy') {
-            steps {
-                sh 'python --version'
-            }
-        }
+
+    // stage('Setup Environment') {
+    //     env.PROJECT_ID = env.GIT_BRANCH
+    //     env.RANDOM_HASH = sh(returnStdout: true, script: "sha256sum").trim()
+    //     if (env.GIT_BRANCH == 'master') {
+    //         env.MARATHON_FILE = 'prod'
+    //         env.PROJECT_ID = 'prod'
+    //     }
+    //     else if(env.GIT_BRANCH == 'staging'){ env.MARATHON_FILE = env.GIT_BRANCH }
+    //     else if(env.GIT_BRANCH == 'dev') { env.MARATHON_FILE = env.GIT_BRANCH }
+    //     else { env.MARATHON_FILE = 'feature' }
+    // }
+
+    stage('Build Container and Register') {
+        customImage = docker.build()
     }
-    post {
-        always {
-            sh 'ls -l /app'
-            // archiveArtifacts 'junit.xml'
-            archiveArtifacts '*.xml'
-            //archiveArtifacts '/app/*.xml'
-            // archiveArtifacts '/app/python-project.xml'
-            // junit 'python-project.xml'
+
+    stage ('Run Tests') {
+        customImage.inside {
+            sh "pytest --junit-xml=test_results.xml /app || exit 0"
+            junit keepLongStdio: true, allowEmptyResults: true, testResults: 'test_results.xml'
         }
     }
 }
