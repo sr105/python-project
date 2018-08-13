@@ -21,7 +21,7 @@ node {
     // }
 
     stage('Build Container and Register') {
-        customImage = docker.build()
+        customImage = docker.build("test-image")
     }
 
     stage ('Run Tests') {
