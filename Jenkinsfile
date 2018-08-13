@@ -30,7 +30,8 @@ pipeline {
     post {
         always {
             sh 'ls -l /app'
-            archiveArtifacts '/app/*.xml'
+            archiveArtifacts 'junit.xml'
+            //archiveArtifacts '/app/*.xml'
             // archiveArtifacts '/app/python-project.xml'
             // junit 'python-project.xml'
         }
