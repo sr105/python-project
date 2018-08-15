@@ -29,5 +29,21 @@ node {
             sh "pytest --junit-xml=test_results.xml /app || exit 0"
             junit keepLongStdio: true, allowEmptyResults: true, testResults: 'test_results.xml'
         }
+
+        databases = docker.build("databases", "docker/Dockerfile")
+        databases.withRun('-e "MYSQL_ROOT_PASSWORD=password123"') { c ->
+            databases.inside("--link ${c.id}:db") {
+                /* Wait until mysql service is up */
+                sh 'while ! mysqladmin ping -hdb --silent; do sleep 1; done'
+                }
+            customImage.inside("--link ${c.id}:db") {
+                /*
+                 * Run some tests which require MySQL, and assume that it is
+                 * available on the host name `db`
+                 */
+                sh 'host db'
+                sh 'nc -vz db 3306'
+            }
+        }
     }
 }
