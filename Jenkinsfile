@@ -30,7 +30,7 @@ node {
             junit keepLongStdio: true, allowEmptyResults: true, testResults: 'test_results.xml'
         }
 
-        databases = docker.build("databases", "Dockerfile.db")
+        databases = docker.build("databases", "-f Dockerfile.db .")
         databases.withRun('-e "MYSQL_ROOT_PASSWORD=password123"') { c ->
             databases.inside("--link ${c.id}:db") {
                 /* Wait until mysql service is up */
