@@ -10,6 +10,7 @@ LABEL author_email="kazanski.zachary@gmail.com"
 
 RUN apk add --update --no-cache \
     py-pip \
+    bind-tools \
     bash
 
 RUN mkdir /app
