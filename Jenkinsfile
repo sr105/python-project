@@ -29,7 +29,9 @@ node {
             sh "pytest --junit-xml=test_results.xml /app || exit 0"
             junit keepLongStdio: true, allowEmptyResults: true, testResults: 'test_results.xml'
         }
+    }
 
+    stage ('Test Docker Sidecar') {
         databases = docker.build("databases", "-f Dockerfile.db .")
         databases.withRun('-e "MYSQL_ROOT_PASSWORD=password123"') { c ->
             databases.inside("--link ${c.id}:db") {
@@ -41,8 +43,8 @@ node {
                  * Run some tests which require MySQL, and assume that it is
                  * available on the host name `db`
                  */
-                sh 'host db'
-                sh 'nc -vz db 3306'
+                sh 'ping -c 5 db'
+                // sh 'nc -vz db 3306'
             }
         }
     }
